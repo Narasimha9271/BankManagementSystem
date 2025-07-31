@@ -10,10 +10,7 @@ import Transfer from "./pages/customer/Transfer";
 import Profile from "./pages/customer/Profile";
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import Banks from "./pages/admin/Banks";
-import Branches from "./pages/admin/Branches";
 import Customers from "./pages/admin/Customers";
-import Accounts from "./pages/admin/Accounts";
 import AdminTransactions from "./pages/admin/Transactions";
 
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -21,8 +18,9 @@ import RoleSelect from "./pages/public/RoleSelect";
 import CustomerLogin from "./pages/public/CustomerLogin";
 import AdminLogin from "./pages/public/AdminLogin";
 import CustomerRegister from "./pages/public/CustomerRegister";
-import AdminRegister from "./pages/public/AdminRegister";
 import DashboardLayout from "./layouts/DashboardLayout";
+import ChangePassword from "./pages/customer/ChangePassword";
+import ChangeEmail from "./pages/customer/ChangeEmail";
 
 export default function App() {
   return (
@@ -34,7 +32,6 @@ export default function App() {
           <Route path="/login/customer" element={<CustomerLogin />} />
           <Route path="/login/admin" element={<AdminLogin />} />
           <Route path="/register/customer" element={<CustomerRegister />} />
-          <Route path="/register/admin" element={<AdminRegister />} />
         </Route>
 
         {/* Customer Routes */}
@@ -50,6 +47,9 @@ export default function App() {
           <Route path="transactions" element={<Transactions />} />
           <Route path="transfer" element={<Transfer />} />
           <Route path="profile" element={<Profile />} />
+
+          <Route path="profile/change-password" element={<ChangePassword />} />
+          <Route path="profile/change-email" element={<ChangeEmail />} />
         </Route>
 
         {/* Admin Routes */}
@@ -62,10 +62,7 @@ export default function App() {
           }
         >
           <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="banks" element={<Banks />} />
-          <Route path="branches" element={<Branches />} />
           <Route path="customers" element={<Customers />} />
-          <Route path="accounts" element={<Accounts />} />
           <Route path="transactions" element={<AdminTransactions />} />
         </Route>
       </Routes>

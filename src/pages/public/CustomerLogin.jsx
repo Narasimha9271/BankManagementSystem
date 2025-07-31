@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import customerApi from "../../store/api/customerApi";
 import useAuthStore from "../../store/authStore";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 export default function CustomerLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const loginStore = useAuthStore();
 
@@ -13,7 +15,6 @@ export default function CustomerLogin() {
     e.preventDefault();
     try {
       const res = await customerApi.post("/auth/login", { username, password });
-
       loginStore.login(res.data.token, { username, role: "CUSTOMER" });
       navigate("/customer/dashboard");
     } catch (err) {
@@ -23,29 +24,57 @@ export default function CustomerLogin() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-50">
+    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-100 via-cyan-100 to-green-100 animate-gradient">
       <form
-        className="bg-white p-6 rounded shadow-md w-96"
+        className="bg-white/30 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-96 transform transition-all duration-500 animate-scale-in"
         onSubmit={handleLogin}
       >
-        <h2 className="text-2xl font-bold mb-4">Customer Login</h2>
+        <h2 className="text-3xl font-extrabold text-gray-800 mb-6 text-center">
+          Customer Login
+        </h2>
+
+        {/* ✅ Username input */}
         <input
           type="text"
           placeholder="Username"
-          className="w-full p-2 mb-3 border rounded"
+          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 transition duration-300"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-2 mb-3 border rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700">
+
+        {/* ✅ Password input with eye button */}
+        <div className="relative mb-6">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            className="w-full p-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 transition duration-300"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+          </button>
+        </div>
+
+        {/* ✅ Login button */}
+        <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white w-full py-3 rounded-lg font-semibold shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-2xl hover:from-cyan-500 hover:to-blue-500">
           Login
         </button>
+
+        {/* ✅ Register link */}
+        <p className="text-center mt-4 text-gray-700">
+          New here?{" "}
+          <span
+            className="text-blue-600 font-semibold cursor-pointer hover:underline"
+            onClick={() => navigate("/register/customer")}
+          >
+            Register
+          </span>
+        </p>
       </form>
     </div>
   );

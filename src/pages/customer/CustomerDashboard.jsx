@@ -5,17 +5,17 @@ import "jspdf-autotable";
 
 export default function CustomerDashboard() {
   const [activeTab, setActiveTab] = useState("balance");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [balance, setBalance] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [transferData, setTransferData] = useState({
     toUsername: "",
     amount: "",
   });
-  const [creditAmount, setCreditAmount] = useState("");
-  const [debitAmount, setDebitAmount] = useState("");
+  const [depositAmount, setDepositAmount] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
   const [filter, setFilter] = useState("ALL");
 
-  // ✅ Fetch balance & transactions when component mounts
   useEffect(() => {
     fetchBalance();
     fetchTransactions();
@@ -39,25 +39,26 @@ export default function CustomerDashboard() {
     }
   };
 
-  // ✅ Filtered transactions
   const filteredTransactions = transactions.filter((txn) => {
     if (filter === "ALL") return true;
     if (filter === "TRANSFER") return txn.type.includes("TRANSFER");
+    if (filter === "DEPOSIT") return txn.type === "CREDIT";
+    if (filter === "WITHDRAW") return txn.type === "DEBIT";
     return txn.type === filter;
   });
 
-  // ✅ Download mini-statement
-
   const downloadMiniStatement = () => {
     const doc = new jsPDF();
-
     doc.setFontSize(18);
     doc.text("Mini Statement (Last 10 Transactions)", 14, 20);
 
     const last10 = transactions.slice(-10);
-
     const tableData = last10.map((txn) => [
-      txn.type.replace("_", " "),
+      txn.type === "CREDIT"
+        ? "Deposit"
+        : txn.type === "DEBIT"
+        ? "Withdraw"
+        : txn.type.replace("_", " "),
       `₹ ${txn.type === "CREDIT" ? txn.credit : txn.debit}`,
       new Date(txn.timestamp).toLocaleString(),
     ]);
@@ -71,6 +72,41 @@ export default function CustomerDashboard() {
     doc.save("mini-statement.pdf");
   };
 
+  // ✅ DEPOSIT handler (was CREDIT)
+  const handleDeposit = async (e) => {
+    e.preventDefault();
+    try {
+      await customerApi.post("/api/transactions/credit", {
+        amount: depositAmount,
+      });
+      alert("✅ Money Deposited!");
+      fetchBalance();
+      fetchTransactions();
+      setDepositAmount("");
+    } catch (err) {
+      const msg = err.response?.data?.message || "Deposit Failed";
+      alert(`❌ ${msg}`);
+    }
+  };
+
+  // ✅ WITHDRAW handler (was DEBIT)
+  const handleWithdraw = async (e) => {
+    e.preventDefault();
+    try {
+      await customerApi.post("/api/transactions/debit", {
+        amount: withdrawAmount,
+      });
+      alert("✅ Money Withdrawn!");
+      fetchBalance();
+      fetchTransactions();
+      setWithdrawAmount("");
+    } catch (err) {
+      const msg = err.response?.data?.message || "Withdraw Failed";
+      alert(`❌ ${msg}`);
+    }
+  };
+
+  // ✅ TRANSFER handler
   const handleTransfer = async (e) => {
     e.preventDefault();
     try {
@@ -80,141 +116,136 @@ export default function CustomerDashboard() {
       fetchTransactions();
       setTransferData({ toUsername: "", amount: "" });
     } catch (err) {
-      console.error("❌ Transfer Failed", err);
-      alert("❌ Transfer Failed");
-    }
-  };
-
-  // ✅ Credit money function
-  const handleCredit = async (e) => {
-    e.preventDefault();
-    try {
-      await customerApi.post("/api/transactions/credit", {
-        amount: creditAmount,
-      });
-      alert("✅ Money Credited!");
-      fetchBalance();
-      fetchTransactions();
-      setCreditAmount("");
-    } catch (err) {
-      console.error("❌ Credit Failed", err);
-      alert("❌ Credit Failed");
-    }
-  };
-
-  // ✅ Debit money function
-  const handleDebit = async (e) => {
-    e.preventDefault();
-    try {
-      await customerApi.post("/api/transactions/debit", {
-        amount: debitAmount,
-      });
-      alert("✅ Money Debited!");
-      fetchBalance();
-      fetchTransactions();
-      setDebitAmount("");
-    } catch (err) {
-      console.error("❌ Debit Failed", err);
-      alert("❌ Debit Failed");
+      const msg = err.response?.data?.message || "Transfer Failed";
+      alert(`❌ ${msg}`);
     }
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* 📌 Sidebar */}
-      <div className="w-64 bg-blue-700 text-white flex flex-col p-4">
-        <h2 className="text-2xl font-bold mb-6">Customer Panel</h2>
-        {["balance", "credit", "debit", "transfer", "transactions"].map(
-          (tab) => (
-            <button
-              key={tab}
-              className={`p-2 mb-2 rounded ${
-                activeTab === tab ? "bg-blue-900" : "hover:bg-blue-800"
-              }`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab === "balance" && "🏦 Balance Overview"}
-              {tab === "credit" && "💰 Credit Money"}
-              {tab === "debit" && "💵 Debit Money"}
-              {tab === "transfer" && "💸 Transfer Money"}
-              {tab === "transactions" && "📜 Transactions"}
-            </button>
-          )
-        )}
+    <div className="flex flex-col sm:flex-row min-h-screen bg-gradient-to-br from-cyan-100 via-blue-50 to-green-100">
+      {/* 📌 SIDEBAR */}
+      <div className="sm:w-64 w-full bg-gradient-to-b from-teal-700 to-cyan-500 text-white p-4 shadow-2xl">
+        {/* ✅ Mobile menu toggle */}
+        <div className="flex justify-between items-center sm:block">
+          <h2 className="text-2xl sm:text-3xl font-extrabold mb-4 text-center tracking-wide">
+            🏦 Customer Panel
+          </h2>
+          <button
+            className="sm:hidden bg-blue-700 px-3 py-2 rounded-md"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            ☰
+          </button>
+        </div>
+
+        {/* ✅ Menu buttons */}
+        <div className={`${menuOpen ? "block" : "hidden"} sm:block`}>
+          {["balance", "deposit", "withdraw", "transfer", "transactions"].map(
+            (tab) => (
+              <button
+                key={tab}
+                className={`w-full text-left p-3 mb-3 rounded-lg text-lg transition-all ${
+                  activeTab === tab
+                    ? "bg-blue-900 shadow-lg scale-105"
+                    : "hover:bg-blue-700 hover:shadow-md hover:scale-105"
+                }`}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setMenuOpen(false);
+                }}
+              >
+                {tab === "balance" && "🏦 Balance Overview"}
+                {tab === "deposit" && "💰 Deposit Money"}
+                {tab === "withdraw" && "💵 Withdraw Money"}
+                {tab === "transfer" && "💸 Transfer Money"}
+                {tab === "transactions" && "📜 Transactions"}
+              </button>
+            )
+          )}
+        </div>
       </div>
 
-      {/* 📌 Main Content */}
-      <div className="flex-1 p-6">
-        {/* 🏦 Balance */}
+      {/* 📌 MAIN CONTENT */}
+      <div className="flex-1 p-4 sm:p-8 animate-fadeIn">
+        {/* 🏦 BALANCE */}
         {activeTab === "balance" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">🏦 Balance Overview</h2>
-            <div className="bg-white p-6 rounded shadow">
-              <p className="text-xl">💰 Current Balance:</p>
-              <h1 className="text-4xl font-bold text-green-600 mt-2">
+          <div className="animate-slideIn">
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">
+              🏦 Balance Overview
+            </h2>
+            <div className="bg-white/50 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white/40">
+              <p className="text-lg sm:text-xl text-gray-700">
+                💰 Current Balance:
+              </p>
+              <h1 className="text-4xl sm:text-5xl font-extrabold text-green-600 mt-3 drop-shadow-md">
                 ₹ {balance !== null ? balance.toFixed(2) : "Loading..."}
               </h1>
             </div>
           </div>
         )}
 
-        {/* 💰 Credit Money */}
-        {activeTab === "credit" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">💰 Credit Money</h2>
+        {/* 💰 DEPOSIT */}
+        {activeTab === "deposit" && (
+          <div className="flex flex-col justify-center items-center w-full h-[80vh] animate-slideIn">
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">
+              💰 Deposit Money
+            </h2>
             <form
-              onSubmit={handleCredit}
-              className="bg-white p-6 rounded shadow w-[400px]"
+              onSubmit={handleDeposit}
+              className="bg-white/50 backdrop-blur-md p-6 rounded-2xl shadow-xl w-full max-w-md"
             >
               <input
                 type="number"
                 placeholder="Enter amount"
-                value={creditAmount}
-                onChange={(e) => setCreditAmount(e.target.value)}
-                className="w-full p-2 border rounded mb-3"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+                className="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 required
               />
-              <button className="bg-green-600 text-white w-full py-2 rounded hover:bg-green-700">
-                Credit Money
+              <button className="bg-green-600 text-white w-full py-3 rounded-lg hover:bg-green-700 transition transform hover:scale-105">
+                ✅ Deposit Money
               </button>
             </form>
           </div>
         )}
 
-        {/* 💵 Debit Money */}
-        {activeTab === "debit" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">💵 Debit Money</h2>
+        {/* 💵 WITHDRAW */}
+        {activeTab === "withdraw" && (
+          <div className="flex flex-col justify-center items-center w-full h-[80vh] animate-slideIn">
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">
+              💵 Withdraw Money
+            </h2>
             <form
-              onSubmit={handleDebit}
-              className="bg-white p-6 rounded shadow w-[400px]"
+              onSubmit={handleWithdraw}
+              className="bg-white/50 backdrop-blur-md p-6 rounded-2xl shadow-xl w-full max-w-md"
             >
               <input
                 type="number"
                 placeholder="Enter amount"
-                value={debitAmount}
-                onChange={(e) => setDebitAmount(e.target.value)}
-                className="w-full p-2 border rounded mb-3"
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
+                className="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-red-400 focus:outline-none"
                 required
               />
-              <button className="bg-red-600 text-white w-full py-2 rounded hover:bg-red-700">
-                Debit Money
+              <button className="bg-red-600 text-white w-full py-3 rounded-lg hover:bg-red-700 transition transform hover:scale-105">
+                ❌ Withdraw Money
               </button>
             </form>
           </div>
         )}
 
-        {/* 💸 Transfer Money */}
+        {/* 💸 TRANSFER */}
         {activeTab === "transfer" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">💸 Transfer Money</h2>
+          <div className="flex flex-col justify-center items-center w-full h-[80vh] animate-slideIn">
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">
+              💸 Transfer Money
+            </h2>
             <form
               onSubmit={handleTransfer}
-              className="bg-white p-6 rounded shadow w-[400px]"
+              className="bg-white/50 backdrop-blur-md p-6 rounded-2xl shadow-xl w-full max-w-md"
             >
               <input
                 type="text"
-                name="toUsername"
                 placeholder="Recipient Username"
                 value={transferData.toUsername}
                 onChange={(e) =>
@@ -223,114 +254,100 @@ export default function CustomerDashboard() {
                     toUsername: e.target.value,
                   })
                 }
-                className="w-full p-2 border rounded mb-3"
+                className="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 required
               />
               <input
                 type="number"
-                name="amount"
                 placeholder="Amount"
                 value={transferData.amount}
                 onChange={(e) =>
                   setTransferData({ ...transferData, amount: e.target.value })
                 }
-                className="w-full p-2 border rounded mb-3"
+                className="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 required
               />
-              <button className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700">
-                Send Money
+              <button className="bg-blue-600 text-white w-full py-3 rounded-lg hover:bg-blue-700 transition transform hover:scale-105">
+                🚀 Send Money
               </button>
             </form>
           </div>
         )}
 
-        {/* 🔹 FILTER + DOWNLOAD */}
+        {/* 📜 TRANSACTIONS */}
         {activeTab === "transactions" && (
-          <div className="flex justify-between mb-4">
-            <div className="flex gap-2">
+          <div className="animate-slideIn">
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+              <h2 className="text-3xl sm:text-4xl font-extrabold">
+                📜 Transactions History
+              </h2>
               <button
-                onClick={() => setFilter("ALL")}
-                className={`px-3 py-1 rounded ${
-                  filter === "ALL" ? "bg-blue-500 text-white" : "bg-gray-200"
-                }`}
+                onClick={downloadMiniStatement}
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition transform hover:scale-105"
               >
-                All
-              </button>
-              <button
-                onClick={() => setFilter("CREDIT")}
-                className={`px-3 py-1 rounded ${
-                  filter === "CREDIT"
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-200"
-                }`}
-              >
-                Credit
-              </button>
-              <button
-                onClick={() => setFilter("DEBIT")}
-                className={`px-3 py-1 rounded ${
-                  filter === "DEBIT" ? "bg-red-500 text-white" : "bg-gray-200"
-                }`}
-              >
-                Debit
-              </button>
-              <button
-                onClick={() => setFilter("TRANSFER")}
-                className={`px-3 py-1 rounded ${
-                  filter === "TRANSFER"
-                    ? "bg-orange-500 text-white"
-                    : "bg-gray-200"
-                }`}
-              >
-                Transfer
+                📥 Download Mini Statement
               </button>
             </div>
 
-            <button
-              onClick={downloadMiniStatement}
-              className="px-3 py-1 rounded bg-purple-500 text-white"
-            >
-              📥 Download Mini Statement
-            </button>
-          </div>
-        )}
+            {/* 🔹 FILTER BUTTONS */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {["ALL", "DEPOSIT", "WITHDRAW", "TRANSFER"].map((btn) => (
+                <button
+                  key={btn}
+                  onClick={() => setFilter(btn)}
+                  className={`px-3 py-2 rounded-lg font-medium transition ${
+                    filter === btn
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 hover:bg-gray-300"
+                  }`}
+                >
+                  {btn}
+                </button>
+              ))}
+            </div>
 
-        {/* 📜 Transactions */}
-        {activeTab === "transactions" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">📜 Transactions History</h2>
-            <div className="bg-white p-6 rounded shadow">
+            {/* 🔹 TABLE */}
+            <div className="bg-white/50 backdrop-blur-md p-6 rounded-2xl shadow-xl overflow-x-auto">
               {transactions.length === 0 ? (
                 <p>No transactions found.</p>
               ) : (
-                <table className="w-full border">
+                <table className="w-full border rounded-lg overflow-hidden min-w-[500px]">
                   <thead>
                     <tr className="bg-gray-200">
-                      <th className="p-2 border">Type</th>
-                      <th className="p-2 border">Amount</th>
-                      <th className="p-2 border">Date</th>
+                      <th className="p-3 border">Type</th>
+                      <th className="p-3 border">Amount</th>
+                      <th className="p-3 border">Date</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredTransactions.map((txn) => {
+                    {filteredTransactions.map((txn, i) => {
                       let amount =
                         txn.type === "CREDIT" ? txn.credit : txn.debit;
+                      let displayType =
+                        txn.type === "CREDIT"
+                          ? "Deposit"
+                          : txn.type === "DEBIT"
+                          ? "Withdraw"
+                          : txn.type.replace("_", " ");
                       let color =
                         txn.type === "CREDIT"
                           ? "text-green-600"
                           : txn.type === "DEBIT"
                           ? "text-red-600"
-                          : "text-orange-600"; // for TRANSFER_DEBIT
+                          : "text-orange-600";
 
                       return (
-                        <tr key={txn.id} className="text-center">
-                          <td className="p-2 border">
-                            {txn.type.replace("_", " ")}
-                          </td>
-                          <td className={`p-2 border font-semibold ${color}`}>
+                        <tr
+                          key={txn.id}
+                          className={`text-center ${
+                            i % 2 === 0 ? "bg-white/70" : "bg-gray-50/60"
+                          } hover:bg-gray-100 transition`}
+                        >
+                          <td className="p-3 border">{displayType}</td>
+                          <td className={`p-3 border font-semibold ${color}`}>
                             ₹ {amount}
                           </td>
-                          <td className="p-2 border">
+                          <td className="p-3 border">
                             {new Date(txn.timestamp).toLocaleString()}
                           </td>
                         </tr>
