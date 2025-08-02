@@ -4,11 +4,9 @@ import adminApi from "../../store/api/adminApi";
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("customers");
 
-  // 🔹 States
   const [customers, setCustomers] = useState([]);
   const [transactions, setTransactions] = useState([]);
 
-  // 🔹 Filters for Transactions
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -18,13 +16,12 @@ export default function AdminDashboard() {
     if (activeTab === "transactions") fetchTransactions();
   }, [activeTab]);
 
-  // ✅ API Calls
   const fetchCustomers = async () => {
     try {
       const res = await adminApi.get("/api/admin/view/customers");
       setCustomers(res.data);
     } catch (err) {
-      console.error("❌ Error fetching customers", err);
+      console.error(" Error fetching customers", err);
     }
   };
 
@@ -49,7 +46,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // ✅ Filter transactions client-side
   const filteredTransactions = transactions.filter((txn) => {
     const txnDate = new Date(txn.timestamp);
     const afterStart = startDate ? txnDate >= new Date(startDate) : true;
@@ -65,7 +61,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-white to-purple-50 p-4 sm:p-6">
-      {/* 🌟 Responsive Navbar */}
       <div className="flex flex-col sm:flex-row justify-center sm:space-x-6 space-y-3 sm:space-y-0 bg-white/80 backdrop-blur-lg shadow-lg rounded-xl p-3 sm:p-4 mb-6 sticky top-0 z-5">
         {["customers", "transactions"].map((tab) => (
           <button
@@ -85,7 +80,6 @@ export default function AdminDashboard() {
       </div>
 
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* 👥 CUSTOMERS TAB */}
         {activeTab === "customers" && (
           <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100">
             <h2 className="text-xl sm:text-2xl font-bold mb-4 text-purple-700">
@@ -127,16 +121,13 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* 📜 TRANSACTIONS TAB */}
         {activeTab === "transactions" && (
           <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100">
             <h2 className="text-xl sm:text-2xl font-bold mb-4 text-purple-700">
               📜 Transactions
             </h2>
 
-            {/* ✅ FILTERS */}
             <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
-              {/* Type Filter */}
               <div className="flex-1">
                 <label className="block text-gray-700 text-sm font-medium mb-1">
                   Transaction Type
@@ -154,7 +145,6 @@ export default function AdminDashboard() {
                 </select>
               </div>
 
-              {/* Start Date */}
               <div className="flex-1">
                 <label className="block text-gray-700 text-sm font-medium mb-1">
                   Start Date
@@ -167,7 +157,6 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              {/* End Date */}
               <div className="flex-1">
                 <label className="block text-gray-700 text-sm font-medium mb-1">
                   End Date
@@ -180,7 +169,6 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              {/* Reset Button */}
               {(startDate || endDate || typeFilter !== "ALL") && (
                 <button
                   onClick={() => {
@@ -195,7 +183,6 @@ export default function AdminDashboard() {
               )}
             </div>
 
-            {/* ✅ Table */}
             <div className="overflow-x-auto">
               <table className="w-full border-collapse min-w-[600px]">
                 <thead>

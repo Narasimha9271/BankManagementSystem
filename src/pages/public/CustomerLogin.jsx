@@ -33,7 +33,6 @@ export default function CustomerLogin() {
           Customer Login
         </h2>
 
-        {/* ✅ Username input */}
         <input
           type="text"
           placeholder="Username"
@@ -42,7 +41,6 @@ export default function CustomerLogin() {
           onChange={(e) => setUsername(e.target.value)}
         />
 
-        {/* ✅ Password input with eye button */}
         <div className="relative mb-6">
           <input
             type={showPassword ? "text" : "password"}
@@ -60,12 +58,10 @@ export default function CustomerLogin() {
           </button>
         </div>
 
-        {/* ✅ Login button */}
         <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white w-full py-3 rounded-lg font-semibold shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-2xl hover:from-cyan-500 hover:to-blue-500">
           Login
         </button>
 
-        {/* ✅ Register link */}
         <p className="text-center mt-4 text-gray-700">
           New here?{" "}
           <span

@@ -72,7 +72,6 @@ export default function CustomerDashboard() {
     doc.save("mini-statement.pdf");
   };
 
-  // ✅ DEPOSIT handler (was CREDIT)
   const handleDeposit = async (e) => {
     e.preventDefault();
     try {
@@ -89,7 +88,6 @@ export default function CustomerDashboard() {
     }
   };
 
-  // ✅ WITHDRAW handler (was DEBIT)
   const handleWithdraw = async (e) => {
     e.preventDefault();
     try {
@@ -106,7 +104,6 @@ export default function CustomerDashboard() {
     }
   };
 
-  // ✅ TRANSFER handler
   const handleTransfer = async (e) => {
     e.preventDefault();
     try {
@@ -123,9 +120,7 @@ export default function CustomerDashboard() {
 
   return (
     <div className="flex flex-col sm:flex-row min-h-screen bg-gradient-to-br from-cyan-100 via-blue-50 to-green-100">
-      {/* 📌 SIDEBAR */}
       <div className="sm:w-64 w-full bg-gradient-to-b from-teal-700 to-cyan-500 text-white p-4 shadow-2xl">
-        {/* ✅ Mobile menu toggle */}
         <div className="flex justify-between items-center sm:block">
           <h2 className="text-2xl sm:text-3xl font-extrabold mb-4 text-center tracking-wide">
             🏦 Customer Panel
@@ -138,7 +133,6 @@ export default function CustomerDashboard() {
           </button>
         </div>
 
-        {/* ✅ Menu buttons */}
         <div className={`${menuOpen ? "block" : "hidden"} sm:block`}>
           {["balance", "deposit", "withdraw", "transfer", "transactions"].map(
             (tab) => (
@@ -165,9 +159,7 @@ export default function CustomerDashboard() {
         </div>
       </div>
 
-      {/* 📌 MAIN CONTENT */}
       <div className="flex-1 p-4 sm:p-8 animate-fadeIn">
-        {/* 🏦 BALANCE */}
         {activeTab === "balance" && (
           <div className="animate-slideIn">
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">
@@ -184,7 +176,6 @@ export default function CustomerDashboard() {
           </div>
         )}
 
-        {/* 💰 DEPOSIT */}
         {activeTab === "deposit" && (
           <div className="flex flex-col justify-center items-center w-full h-[80vh] animate-slideIn">
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">
@@ -209,7 +200,6 @@ export default function CustomerDashboard() {
           </div>
         )}
 
-        {/* 💵 WITHDRAW */}
         {activeTab === "withdraw" && (
           <div className="flex flex-col justify-center items-center w-full h-[80vh] animate-slideIn">
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">
@@ -234,7 +224,6 @@ export default function CustomerDashboard() {
           </div>
         )}
 
-        {/* 💸 TRANSFER */}
         {activeTab === "transfer" && (
           <div className="flex flex-col justify-center items-center w-full h-[80vh] animate-slideIn">
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">
@@ -274,7 +263,6 @@ export default function CustomerDashboard() {
           </div>
         )}
 
-        {/* 📜 TRANSACTIONS */}
         {activeTab === "transactions" && (
           <div className="animate-slideIn">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
@@ -289,7 +277,6 @@ export default function CustomerDashboard() {
               </button>
             </div>
 
-            {/* 🔹 FILTER BUTTONS */}
             <div className="flex flex-wrap gap-2 mb-4">
               {["ALL", "DEPOSIT", "WITHDRAW", "TRANSFER"].map((btn) => (
                 <button
@@ -306,7 +293,6 @@ export default function CustomerDashboard() {
               ))}
             </div>
 
-            {/* 🔹 TABLE */}
             <div className="bg-white/50 backdrop-blur-md p-6 rounded-2xl shadow-xl overflow-x-auto">
               {transactions.length === 0 ? (
                 <p>No transactions found.</p>

@@ -36,7 +36,6 @@ export default function AdminLogin() {
           Admin Login
         </h2>
 
-        {/* ✅ Username Input */}
         <input
           type="text"
           placeholder="Username"
@@ -45,7 +44,6 @@ export default function AdminLogin() {
           onChange={(e) => setUsername(e.target.value)}
         />
 
-        {/* ✅ Password Input with Eye Button */}
         <div className="relative mb-6">
           <input
             type={showPassword ? "text" : "password"}
@@ -63,7 +61,6 @@ export default function AdminLogin() {
           </button>
         </div>
 
-        {/* ✅ Login Button */}
         <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white w-full py-3 rounded-lg font-semibold shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-2xl hover:from-pink-500 hover:to-purple-500">
           Login
         </button>

@@ -5,13 +5,11 @@ export default function RoleSelect() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-50 px-6">
-      {/* 🏦 Title */}
       <h1 className="text-3xl font-bold mb-8">
         Are you a Customer or an Admin?
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-2xl">
-        {/* 🟦 Customer Section */}
         <div className="bg-white shadow-md rounded-lg p-6 text-center border border-gray-200">
           <h2 className="text-2xl font-semibold mb-4">👤 Customer</h2>
           <p className="text-gray-600 mb-4">
@@ -34,7 +32,6 @@ export default function RoleSelect() {
           </div>
         </div>
 
-        {/* 🟩 Admin Section */}
         <div className="bg-white shadow-md rounded-lg p-6 text-center border border-gray-200">
           <h2 className="text-2xl font-semibold mb-4">🛠️ Admin</h2>
           <p className="text-gray-600 mb-4">

@@ -35,7 +35,6 @@ export default function CustomerRegister() {
       const res = await customerApi.post("/auth/register", form);
       alert("✅ Customer registered successfully!");
 
-      // ✅ Auto-login after register
       loginStore.login(res.data.token, {
         username: form.username,
         role: "CUSTOMER",
@@ -58,7 +57,6 @@ export default function CustomerRegister() {
           Customer Register
         </h2>
 
-        {/* All other inputs stay the same */}
         <input
           name="name"
           placeholder="Full Name"
@@ -118,7 +116,6 @@ export default function CustomerRegister() {
           required
         />
 
-        {/* ✅ Password field with eye toggle */}
         <div className="relative mb-4">
           <input
             name="password"
@@ -171,12 +168,10 @@ export default function CustomerRegister() {
           onChange={handleChange}
         />
 
-        {/* ✅ Register Button */}
         <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white w-full py-3 rounded-lg font-semibold shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-2xl hover:from-cyan-500 hover:to-blue-500">
           Register
         </button>
 
-        {/* ✅ Already Registered Link */}
         <p className="text-center mt-4 text-gray-700">
           Already registered?{" "}
           <span

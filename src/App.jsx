@@ -1,14 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PublicLayout from "./layouts/PublicLayout";
 
-// Public pages
-
-// Customer pages
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import Transactions from "./pages/customer/Transactions";
 import Transfer from "./pages/customer/Transfer";
 import Profile from "./pages/customer/Profile";
-// Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Customers from "./pages/admin/Customers";
 import AdminTransactions from "./pages/admin/Transactions";
@@ -26,7 +22,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<RoleSelect />} />
           <Route path="/login/customer" element={<CustomerLogin />} />
@@ -34,7 +29,6 @@ export default function App() {
           <Route path="/register/customer" element={<CustomerRegister />} />
         </Route>
 
-        {/* Customer Routes */}
         <Route
           path="/customer"
           element={
@@ -52,7 +46,6 @@ export default function App() {
           <Route path="profile/change-email" element={<ChangeEmail />} />
         </Route>
 
-        {/* Admin Routes */}
         <Route
           path="/admin"
           element={
